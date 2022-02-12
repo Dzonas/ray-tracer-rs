@@ -9,6 +9,8 @@ pub struct Tuple {
 }
 
 impl Tuple {
+    pub const PPM_MAX: f64 = 255.0;
+
     pub fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple {
         Tuple { x, y, z, w }
     }
@@ -52,6 +54,19 @@ impl Tuple {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
+    }
+
+    pub fn to_ppm(&self) -> String {
+        format!(
+            "{} {} {}",
+            Tuple::to_ppm_pixel_value(self.x),
+            Tuple::to_ppm_pixel_value(self.y),
+            Tuple::to_ppm_pixel_value(self.z)
+        )
+    }
+
+    fn to_ppm_pixel_value(n: f64) -> u8 {
+        (n * Tuple::PPM_MAX).clamp(0.0, Tuple::PPM_MAX).round() as u8
     }
 }
 
