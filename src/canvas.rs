@@ -1,16 +1,16 @@
-use crate::tuple::Tuple;
+use crate::tuple::Tuple4;
 
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixels: Vec<Tuple>,
+    pixels: Vec<Tuple4>,
 }
 
 impl Canvas {
     const PPM_HEADER: &'static str = "P3";
 
     pub fn new(width: usize, height: usize) -> Canvas {
-        let pixels = vec![Tuple::new(0.0, 0.0, 0.0, 0.0); width * height];
+        let pixels = vec![Tuple4::new(0.0, 0.0, 0.0, 0.0); width * height];
 
         Canvas {
             width,
@@ -33,12 +33,12 @@ impl Canvas {
         self.height
     }
 
-    pub fn put_pixel(&mut self, pixel: Tuple, at: (usize, usize)) {
+    pub fn put_pixel(&mut self, pixel: Tuple4, at: (usize, usize)) {
         let i = self.to_index(at);
         self.pixels[i] = pixel;
     }
 
-    pub fn get_pixel(&self, at: (usize, usize)) -> &Tuple {
+    pub fn get_pixel(&self, at: (usize, usize)) -> &Tuple4 {
         let i = self.to_index(at);
         &self.pixels[i]
     }
@@ -49,7 +49,7 @@ impl Canvas {
             Canvas::PPM_HEADER,
             self.width,
             self.height,
-            Tuple::PPM_MAX
+            Tuple4::PPM_MAX
         );
 
         let ppm_pixels: String = self
@@ -71,7 +71,7 @@ impl Canvas {
 }
 
 impl IntoIterator for Canvas {
-    type Item = Tuple;
+    type Item = Tuple4;
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -93,13 +93,13 @@ mod tests {
 
         assert_eq!(width, 10);
         assert_eq!(height, 20);
-        assert_eq!(data, vec![Tuple::new(0.0, 0.0, 0.0, 0.0); 200]);
+        assert_eq!(data, vec![Tuple4::new(0.0, 0.0, 0.0, 0.0); 200]);
     }
 
     #[test]
     fn test_putting_pixel() {
         let mut canvas = Canvas::new(10, 20);
-        let pixel = Tuple::new(1.0, 2.0, 3.0, 0.0);
+        let pixel = Tuple4::new(1.0, 2.0, 3.0, 0.0);
 
         canvas.put_pixel(pixel, (2, 3));
 
@@ -121,9 +121,9 @@ mod tests {
     #[test]
     fn test_to_ppm_pixel_data() {
         let mut c = Canvas::new(5, 3);
-        c.put_pixel(Tuple::new(1.5, 0.0, 0.0, 0.0), (0, 0));
-        c.put_pixel(Tuple::new(0.0, 0.5, 0.0, 0.0), (2, 1));
-        c.put_pixel(Tuple::new(-0.5, 0.0, 1.0, 0.0), (4, 2));
+        c.put_pixel(Tuple4::new(1.5, 0.0, 0.0, 0.0), (0, 0));
+        c.put_pixel(Tuple4::new(0.0, 0.5, 0.0, 0.0), (2, 1));
+        c.put_pixel(Tuple4::new(-0.5, 0.0, 1.0, 0.0), (4, 2));
 
         let s = c.to_ppm();
 
