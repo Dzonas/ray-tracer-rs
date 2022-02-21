@@ -44,7 +44,7 @@ impl Tuple4 {
         self / mag
     }
 
-    pub fn dot(self, other: Tuple4) -> f64 {
+    pub fn dot(self, other: &Tuple4) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
@@ -257,7 +257,7 @@ mod tests {
         let v1 = Tuple4::vector(1.0, 2.0, 3.0);
         let v2 = Tuple4::vector(2.0, 3.0, 4.0);
 
-        let result = v1.dot(v2);
+        let result = v1.dot(&v2);
 
         assert_eq!(result, 20.0);
     }
