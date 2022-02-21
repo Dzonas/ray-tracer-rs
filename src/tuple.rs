@@ -11,16 +11,21 @@ pub struct Tuple4 {
 impl Tuple4 {
     pub const PPM_MAX: f64 = 255.0;
 
-    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
-        Tuple4 { x, y, z, w }
+    pub fn new<T: Copy + Into<f64>>(x: T, y: T, z: T, w: T) -> Self {
+        Tuple4 {
+            x: x.into(),
+            y: y.into(),
+            z: z.into(),
+            w: w.into(),
+        }
     }
 
-    pub fn point(x: f64, y: f64, z: f64) -> Self {
-        Tuple4::new(x, y, z, 1.0)
+    pub fn point<T: Copy + Into<f64>>(x: T, y: T, z: T) -> Self {
+        Tuple4::new(x.into(), y.into(), z.into(), 1.0)
     }
 
-    pub fn vector(x: f64, y: f64, z: f64) -> Self {
-        Tuple4::new(x, y, z, 0.0)
+    pub fn vector<T: Copy + Into<f64>>(x: T, y: T, z: T) -> Self {
+        Tuple4::new(x.into(), y.into(), z.into(), 0.0)
     }
 
     pub fn is_point(&self) -> bool {
