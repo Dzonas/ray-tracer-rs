@@ -1,17 +1,19 @@
 use std::ops::{Add, Div, Mul, Sub};
 
+type Elem = f64;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Tuple4 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub w: f64,
+    pub x: Elem,
+    pub y: Elem,
+    pub z: Elem,
+    pub w: Elem,
 }
 
 impl Tuple4 {
-    pub const PPM_MAX: f64 = 255.0;
+    pub const PPM_MAX: Elem = 255.0;
 
-    pub fn new<T: Copy + Into<f64>>(x: T, y: T, z: T, w: T) -> Self {
+    pub fn new<T: Copy + Into<Elem>>(x: T, y: T, z: T, w: T) -> Self {
         Tuple4 {
             x: x.into(),
             y: y.into(),
@@ -20,11 +22,11 @@ impl Tuple4 {
         }
     }
 
-    pub fn point<T: Copy + Into<f64>>(x: T, y: T, z: T) -> Self {
+    pub fn point<T: Copy + Into<Elem>>(x: T, y: T, z: T) -> Self {
         Tuple4::new(x.into(), y.into(), z.into(), 1.0)
     }
 
-    pub fn vector<T: Copy + Into<f64>>(x: T, y: T, z: T) -> Self {
+    pub fn vector<T: Copy + Into<Elem>>(x: T, y: T, z: T) -> Self {
         Tuple4::new(x.into(), y.into(), z.into(), 0.0)
     }
 
@@ -40,7 +42,7 @@ impl Tuple4 {
         Tuple4::new(-self.x, -self.y, -self.z, -self.w)
     }
 
-    pub fn magnitude(&self) -> f64 {
+    pub fn magnitude(&self) -> Elem {
         self.dot(self).sqrt()
     }
 
@@ -49,7 +51,7 @@ impl Tuple4 {
         self / mag
     }
 
-    pub fn dot(self, other: &Tuple4) -> f64 {
+    pub fn dot(self, other: &Tuple4) -> Elem {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
@@ -70,7 +72,7 @@ impl Tuple4 {
         )
     }
 
-    fn to_ppm_pixel_value(n: f64) -> u8 {
+    fn to_ppm_pixel_value(n: Elem) -> u8 {
         (n * Tuple4::PPM_MAX).clamp(0.0, Tuple4::PPM_MAX).round() as u8
     }
 }
@@ -101,10 +103,10 @@ impl Sub for Tuple4 {
     }
 }
 
-impl Mul<f64> for Tuple4 {
+impl Mul<Elem> for Tuple4 {
     type Output = Self;
 
-    fn mul(self, other: f64) -> Self::Output {
+    fn mul(self, other: Elem) -> Self::Output {
         Tuple4::new(
             self.x * other,
             self.y * other,
@@ -114,7 +116,7 @@ impl Mul<f64> for Tuple4 {
     }
 }
 
-impl Mul<Tuple4> for f64 {
+impl Mul<Tuple4> for Elem {
     type Output = Tuple4;
 
     fn mul(self, other: Tuple4) -> Self::Output {
@@ -122,10 +124,10 @@ impl Mul<Tuple4> for f64 {
     }
 }
 
-impl Div<f64> for Tuple4 {
+impl Div<Elem> for Tuple4 {
     type Output = Self;
 
-    fn div(self, other: f64) -> Self::Output {
+    fn div(self, other: Elem) -> Self::Output {
         self * (1.0 / other)
     }
 }
