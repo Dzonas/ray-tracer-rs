@@ -36,7 +36,7 @@ impl Tuple4 {
     }
 
     pub fn magnitude(&self) -> f64 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+        self.dot(self).sqrt()
     }
 
     pub fn normalize(self) -> Self {
