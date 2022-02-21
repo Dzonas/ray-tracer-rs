@@ -11,15 +11,15 @@ pub struct Tuple4 {
 impl Tuple4 {
     pub const PPM_MAX: f64 = 255.0;
 
-    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
+    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Tuple4 { x, y, z, w }
     }
 
-    pub fn point(x: f64, y: f64, z: f64) -> Tuple4 {
+    pub fn point(x: f64, y: f64, z: f64) -> Self {
         Tuple4::new(x, y, z, 1.0)
     }
 
-    pub fn vector(x: f64, y: f64, z: f64) -> Tuple4 {
+    pub fn vector(x: f64, y: f64, z: f64) -> Self {
         Tuple4::new(x, y, z, 0.0)
     }
 
@@ -31,7 +31,7 @@ impl Tuple4 {
         self.w == 0.0
     }
 
-    pub fn negate(self) -> Tuple4 {
+    pub fn negate(self) -> Self {
         Tuple4::new(-self.x, -self.y, -self.z, -self.w)
     }
 
@@ -39,7 +39,7 @@ impl Tuple4 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
-    pub fn normalize(self) -> Tuple4 {
+    pub fn normalize(self) -> Self {
         let mag = self.magnitude();
         self / mag
     }
@@ -48,8 +48,8 @@ impl Tuple4 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
-    pub fn cross(self, other: Tuple4) -> Tuple4 {
-        Tuple4::vector(
+    pub fn cross(self, other: Tuple4) -> Self {
+        Self::vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
