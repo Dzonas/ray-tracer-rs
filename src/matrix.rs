@@ -1,6 +1,6 @@
 use std::ops::Mul;
 
-use crate::tuple::Tuple;
+use crate::tuple::Tuple4;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Matrix {
@@ -206,10 +206,10 @@ impl Mul<Matrix> for Matrix {
     }
 }
 
-impl Mul<Tuple> for Matrix {
-    type Output = Tuple;
+impl Mul<Tuple4> for Matrix {
+    type Output = Tuple4;
 
-    fn mul(self, rhs: Tuple) -> Self::Output {
+    fn mul(self, rhs: Tuple4) -> Self::Output {
         let k = 4;
         if self.width != k || self.height != k {
             panic!("Only 4x4 matrices are supported for tuple multiplication");
@@ -224,7 +224,7 @@ impl Mul<Tuple> for Matrix {
             data.push(n);
         }
 
-        Tuple::new(data[0], data[1], data[2], data[3])
+        Tuple4::new(data[0], data[1], data[2], data[3])
     }
 }
 
@@ -282,11 +282,11 @@ mod tests {
     #[test]
     fn test_multiplying_matrix_with_tuple() {
         let matrix = Matrix::as_4x4(&[1, 2, 3, 4, 2, 4, 4, 2, 8, 6, 4, 1, 0, 0, 0, 1]);
-        let tuple = Tuple::new(1.0, 2.0, 3.0, 1.0);
+        let tuple = Tuple4::new(1.0, 2.0, 3.0, 1.0);
 
         let result = matrix * tuple;
 
-        assert_eq!(result, Tuple::new(18.0, 24.0, 33.0, 1.0));
+        assert_eq!(result, Tuple4::new(18.0, 24.0, 33.0, 1.0));
     }
 
     #[test]
@@ -302,7 +302,7 @@ mod tests {
     #[test]
     fn test_multiplying_identity_matrix_by_tuple() {
         let identity = Matrix::identity(4);
-        let tuple = Tuple::new(1.0, 2.0, 3.0, 4.0);
+        let tuple = Tuple4::new(1.0, 2.0, 3.0, 4.0);
 
         let result = identity * tuple;
 

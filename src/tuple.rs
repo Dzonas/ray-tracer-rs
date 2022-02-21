@@ -1,26 +1,26 @@
 use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Tuple {
+pub struct Tuple4 {
     pub x: f64,
     pub y: f64,
     pub z: f64,
     pub w: f64,
 }
 
-impl Tuple {
+impl Tuple4 {
     pub const PPM_MAX: f64 = 255.0;
 
-    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple {
-        Tuple { x, y, z, w }
+    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
+        Tuple4 { x, y, z, w }
     }
 
-    pub fn point(x: f64, y: f64, z: f64) -> Tuple {
-        Tuple::new(x, y, z, 1.0)
+    pub fn point(x: f64, y: f64, z: f64) -> Tuple4 {
+        Tuple4::new(x, y, z, 1.0)
     }
 
-    pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
-        Tuple::new(x, y, z, 0.0)
+    pub fn vector(x: f64, y: f64, z: f64) -> Tuple4 {
+        Tuple4::new(x, y, z, 0.0)
     }
 
     pub fn is_point(&self) -> bool {
@@ -31,25 +31,25 @@ impl Tuple {
         self.w == 0.0
     }
 
-    pub fn negate(self) -> Tuple {
-        Tuple::new(-self.x, -self.y, -self.z, -self.w)
+    pub fn negate(self) -> Tuple4 {
+        Tuple4::new(-self.x, -self.y, -self.z, -self.w)
     }
 
     pub fn magnitude(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
-    pub fn normalize(self) -> Tuple {
+    pub fn normalize(self) -> Tuple4 {
         let mag = self.magnitude();
         self / mag
     }
 
-    pub fn dot(self, other: Tuple) -> f64 {
+    pub fn dot(self, other: Tuple4) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
-    pub fn cross(self, other: Tuple) -> Tuple {
-        Tuple::vector(
+    pub fn cross(self, other: Tuple4) -> Tuple4 {
+        Tuple4::vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
@@ -59,22 +59,22 @@ impl Tuple {
     pub fn to_ppm(&self) -> String {
         format!(
             "{} {} {}",
-            Tuple::to_ppm_pixel_value(self.x),
-            Tuple::to_ppm_pixel_value(self.y),
-            Tuple::to_ppm_pixel_value(self.z)
+            Tuple4::to_ppm_pixel_value(self.x),
+            Tuple4::to_ppm_pixel_value(self.y),
+            Tuple4::to_ppm_pixel_value(self.z)
         )
     }
 
     fn to_ppm_pixel_value(n: f64) -> u8 {
-        (n * Tuple::PPM_MAX).clamp(0.0, Tuple::PPM_MAX).round() as u8
+        (n * Tuple4::PPM_MAX).clamp(0.0, Tuple4::PPM_MAX).round() as u8
     }
 }
 
-impl Add for Tuple {
+impl Add for Tuple4 {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        Tuple::new(
+        Tuple4::new(
             self.x + other.x,
             self.y + other.y,
             self.z + other.z,
@@ -83,11 +83,11 @@ impl Add for Tuple {
     }
 }
 
-impl Sub for Tuple {
+impl Sub for Tuple4 {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        Tuple::new(
+        Tuple4::new(
             self.x - other.x,
             self.y - other.y,
             self.z - other.z,
@@ -96,11 +96,11 @@ impl Sub for Tuple {
     }
 }
 
-impl Mul<f64> for Tuple {
+impl Mul<f64> for Tuple4 {
     type Output = Self;
 
     fn mul(self, other: f64) -> Self::Output {
-        Tuple::new(
+        Tuple4::new(
             self.x * other,
             self.y * other,
             self.z * other,
@@ -109,15 +109,15 @@ impl Mul<f64> for Tuple {
     }
 }
 
-impl Mul<Tuple> for f64 {
-    type Output = Tuple;
+impl Mul<Tuple4> for f64 {
+    type Output = Tuple4;
 
-    fn mul(self, other: Tuple) -> Self::Output {
+    fn mul(self, other: Tuple4) -> Self::Output {
         other * self
     }
 }
 
-impl Div<f64> for Tuple {
+impl Div<f64> for Tuple4 {
     type Output = Self;
 
     fn div(self, other: f64) -> Self::Output {
@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn test_tuple_with_w_as_one_should_be_a_point() {
-        let tuple = Tuple::new(4.3, -4.2, 3.1, 1.0);
+        let tuple = Tuple4::new(4.3, -4.2, 3.1, 1.0);
 
         assert_eq!(tuple.x, 4.3);
         assert_eq!(tuple.y, -4.2);
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_tuple_with_w_as_zero_should_be_a_vector() {
-        let tuple = Tuple::new(4.3, -4.2, 3.1, 0.0);
+        let tuple = Tuple4::new(4.3, -4.2, 3.1, 0.0);
 
         assert_eq!(tuple.x, 4.3);
         assert_eq!(tuple.y, -4.2);
@@ -161,80 +161,80 @@ mod tests {
 
     #[test]
     fn test_point_function_should_return_tuple_with_w_as_one() {
-        let point = Tuple::point(4.3, -4.2, 3.1);
+        let point = Tuple4::point(4.3, -4.2, 3.1);
 
-        assert_eq!(point, Tuple::new(4.3, -4.2, 3.1, 1.0));
+        assert_eq!(point, Tuple4::new(4.3, -4.2, 3.1, 1.0));
     }
 
     #[test]
     fn test_vector_function_should_return_tuple_with_w_as_zero() {
-        let vector = Tuple::vector(4.3, -4.2, 3.1);
+        let vector = Tuple4::vector(4.3, -4.2, 3.1);
 
-        assert_eq!(vector, Tuple::new(4.3, -4.2, 3.1, 0.0));
+        assert_eq!(vector, Tuple4::new(4.3, -4.2, 3.1, 0.0));
     }
 
     #[test]
     fn test_adding_two_tuples() {
-        let t1 = Tuple::new(3.0, -2.0, 5.0, 1.0);
-        let t2 = Tuple::new(-2.0, 3.0, 1.0, 0.0);
+        let t1 = Tuple4::new(3.0, -2.0, 5.0, 1.0);
+        let t2 = Tuple4::new(-2.0, 3.0, 1.0, 0.0);
 
         let result = t1 + t2;
 
-        assert_eq!(result, Tuple::new(1.0, 1.0, 6.0, 1.0));
+        assert_eq!(result, Tuple4::new(1.0, 1.0, 6.0, 1.0));
     }
 
     #[test]
     fn test_subtracting_two_tuples() {
-        let t1 = Tuple::new(3.0, -2.0, 5.0, 1.0);
-        let t2 = Tuple::new(-2.0, 3.0, 1.0, 0.0);
+        let t1 = Tuple4::new(3.0, -2.0, 5.0, 1.0);
+        let t2 = Tuple4::new(-2.0, 3.0, 1.0, 0.0);
 
         let result = t1 - t2;
 
-        assert_eq!(result, Tuple::new(5.0, -5.0, 4.0, 1.0));
+        assert_eq!(result, Tuple4::new(5.0, -5.0, 4.0, 1.0));
     }
 
     #[test]
     fn test_negating_a_tuple() {
-        let t = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        let t = Tuple4::new(1.0, -2.0, 3.0, -4.0);
 
         let result = t.negate();
 
-        assert_eq!(result, Tuple::new(-1.0, 2.0, -3.0, 4.0));
+        assert_eq!(result, Tuple4::new(-1.0, 2.0, -3.0, 4.0));
     }
 
     #[test]
     fn test_multiply_scalar_by_a_tuple() {
-        let t = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        let t = Tuple4::new(1.0, -2.0, 3.0, -4.0);
         let scalar = 0.5;
 
         let result = t * scalar;
 
-        assert_eq!(result, Tuple::new(0.5, -1.0, 1.5, -2.0));
+        assert_eq!(result, Tuple4::new(0.5, -1.0, 1.5, -2.0));
     }
 
     #[test]
     fn test_multiply_tuple_by_a_scalar() {
-        let t = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        let t = Tuple4::new(1.0, -2.0, 3.0, -4.0);
         let scalar = 0.5;
 
         let result = scalar * t;
 
-        assert_eq!(result, Tuple::new(0.5, -1.0, 1.5, -2.0));
+        assert_eq!(result, Tuple4::new(0.5, -1.0, 1.5, -2.0));
     }
 
     #[test]
     fn test_divide_tuple_by_a_scalar() {
-        let t = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        let t = Tuple4::new(1.0, -2.0, 3.0, -4.0);
         let scalar = 2.0;
 
         let result = t / scalar;
 
-        assert_eq!(result, Tuple::new(0.5, -1.0, 1.5, -2.0));
+        assert_eq!(result, Tuple4::new(0.5, -1.0, 1.5, -2.0));
     }
 
     #[test]
     fn test_vector_magnitude() {
-        let v = Tuple::vector(1.0, 2.0, 3.0);
+        let v = Tuple4::vector(1.0, 2.0, 3.0);
 
         let mag = v.magnitude();
 
@@ -243,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_vector_normalize() {
-        let v = Tuple::vector(1.0, 2.0, 3.0);
+        let v = Tuple4::vector(1.0, 2.0, 3.0);
 
         let normalized_v = v.normalize();
 
@@ -254,8 +254,8 @@ mod tests {
 
     #[test]
     fn test_vector_dot_product() {
-        let v1 = Tuple::vector(1.0, 2.0, 3.0);
-        let v2 = Tuple::vector(2.0, 3.0, 4.0);
+        let v1 = Tuple4::vector(1.0, 2.0, 3.0);
+        let v2 = Tuple4::vector(2.0, 3.0, 4.0);
 
         let result = v1.dot(v2);
 
@@ -264,11 +264,11 @@ mod tests {
 
     #[test]
     fn test_vector_cross_product() {
-        let v1 = Tuple::vector(1.0, 2.0, 3.0);
-        let v2 = Tuple::vector(2.0, 3.0, 4.0);
+        let v1 = Tuple4::vector(1.0, 2.0, 3.0);
+        let v2 = Tuple4::vector(2.0, 3.0, 4.0);
 
         let result = v1.cross(v2);
 
-        assert_eq!(result, Tuple::vector(-1.0, 2.0, -1.0));
+        assert_eq!(result, Tuple4::vector(-1.0, 2.0, -1.0));
     }
 }
