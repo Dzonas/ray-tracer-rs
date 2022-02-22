@@ -13,9 +13,11 @@ fn to_yx(size: usize, i: usize) -> (usize, usize) {
     (y, x)
 }
 
+type Elem = f64;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 struct Matrix2x2 {
-    data: [f64; 4],
+    data: [Elem; Matrix2x2::size()],
 }
 
 impl Matrix2x2 {
@@ -26,35 +28,41 @@ impl Matrix2x2 {
     }
 
     #[allow(dead_code)]
-    fn new(data: [f64; Matrix2x2::size()]) -> Matrix2x2 {
+    fn new(data: [Elem; Matrix2x2::size()]) -> Matrix2x2 {
         Matrix2x2 { data }
     }
 
     #[allow(dead_code)]
-    fn get(&self, y: usize, x: usize) -> f64 {
-        let i = to_index(2, y, x);
+    fn get(&self, y: usize, x: usize) -> Elem {
+        let i = to_index(Matrix2x2::N, y, x);
         self.data[i]
     }
 
-    fn det(&self) -> f64 {
+    fn det(&self) -> Elem {
         self.data[0] * self.data[3] - self.data[1] * self.data[2]
     }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Matrix3x3 {
-    data: [f64; 9],
+    data: [Elem; Matrix3x3::size()],
 }
 
 impl Matrix3x3 {
+    const N: usize = 3;
+
+    const fn size() -> usize {
+        Matrix3x3::N * Matrix3x3::N
+    }
+
     #[allow(dead_code)]
-    fn new(data: [f64; 9]) -> Matrix3x3 {
+    fn new(data: [Elem; Matrix3x3::size()]) -> Matrix3x3 {
         Matrix3x3 { data }
     }
 
     #[allow(dead_code)]
-    fn get(&self, y: usize, x: usize) -> f64 {
-        let i = to_index(3, y, x);
+    fn get(&self, y: usize, x: usize) -> Elem {
+        let i = to_index(Matrix3x3::N, y, x);
         self.data[i]
     }
 
@@ -63,26 +71,26 @@ impl Matrix3x3 {
             .data
             .iter()
             .enumerate()
-            .map(|(i, n)| (to_yx(3, i), n))
+            .map(|(i, n)| (to_yx(Matrix3x3::N, i), n))
             .filter(|&((y, x), _)| y != row && x != col)
             .map(|(_, &n)| n)
-            .collect::<Vec<f64>>()
+            .collect::<Vec<Elem>>()
             .try_into()
             .unwrap();
 
         Matrix2x2 { data }
     }
 
-    fn minor(&self, row: usize, col: usize) -> f64 {
+    fn minor(&self, row: usize, col: usize) -> Elem {
         self.submatrix(row, col).det()
     }
 
-    fn cofactor(&self, row: usize, col: usize) -> f64 {
+    fn cofactor(&self, row: usize, col: usize) -> Elem {
         let n = if (row + col) % 2 == 1 { -1.0 } else { 1.0 };
         n * self.minor(row, col)
     }
 
-    fn det(&self) -> f64 {
+    fn det(&self) -> Elem {
         self.data[..3]
             .iter()
             .enumerate()
@@ -93,39 +101,43 @@ impl Matrix3x3 {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Matrix4x4 {
-    data: [f64; 16],
+    data: [Elem; Matrix4x4::size()],
 }
 
 impl Matrix4x4 {
+    const N: usize = 4;
     const PRECISION: f64 = 1e-12;
 
-    pub fn new(data: [f64; 16]) -> Self {
+    const fn size() -> usize {
+        Matrix4x4::N * Matrix4x4::N
+    }
+
+    pub fn new(data: [Elem; Matrix4x4::size()]) -> Self {
         Matrix4x4 { data }
     }
 
     pub fn zero() -> Self {
-        Matrix4x4::new([0.0; 16])
+        Matrix4x4::new([0.0; Matrix4x4::size()])
     }
 
     pub fn identity() -> Self {
-        let n = 4;
         let mut matrix = Matrix4x4::zero();
-        for i in 0..n {
-            matrix.data[i * (n + 1)] = 1.0;
+        for i in 0..Matrix4x4::N {
+            matrix.data[i * (Matrix4x4::N + 1)] = 1.0;
         }
 
         matrix
     }
 
-    pub fn get(&self, y: usize, x: usize) -> f64 {
+    pub fn get(&self, y: usize, x: usize) -> Elem {
         let i = self.to_index(y, x);
         self.data[i]
     }
 
     pub fn transpose(self) -> Self {
         let mut data = self.data;
-        for y in 0..4 {
-            for x in y..4 {
+        for y in 0..Matrix4x4::N {
+            for x in y..Matrix4x4::N {
                 let old_i = self.to_index(y, x);
                 let new_i = self.to_index(x, y);
                 data.swap(new_i, old_i);
@@ -135,8 +147,8 @@ impl Matrix4x4 {
         Matrix4x4 { data }
     }
 
-    pub fn det(&self) -> f64 {
-        self.data[..4]
+    pub fn det(&self) -> Elem {
+        self.data[..Matrix4x4::N]
             .iter()
             .enumerate()
             .map(|(i, &n)| n * self.cofactor(0, i))
@@ -153,8 +165,8 @@ impl Matrix4x4 {
             panic!("Matrix is not invertible");
         }
         let mut matrix = Matrix4x4::zero();
-        for y in 0..4 {
-            for x in 0..4 {
+        for y in 0..Matrix4x4::N {
+            for x in 0..Matrix4x4::N {
                 let c = self.cofactor(y, x);
                 let i = self.to_index(x, y);
                 matrix.data[i] = c / det;
@@ -164,7 +176,7 @@ impl Matrix4x4 {
         matrix
     }
 
-    fn is_invertible_with_det(&self) -> (bool, f64) {
+    fn is_invertible_with_det(&self) -> (bool, Elem) {
         let det = self.det();
         (det.abs() >= Self::PRECISION, det)
     }
@@ -177,28 +189,28 @@ impl Matrix4x4 {
             .map(|(i, n)| (self.to_yx(i), n))
             .filter(|&((y, x), _)| y != row && x != col)
             .map(|(_, &n)| n)
-            .collect::<Vec<f64>>()
+            .collect::<Vec<Elem>>()
             .try_into()
             .unwrap();
 
         Matrix3x3 { data }
     }
 
-    fn minor(&self, row: usize, col: usize) -> f64 {
+    fn minor(&self, row: usize, col: usize) -> Elem {
         self.submatrix(row, col).det()
     }
 
-    fn cofactor(&self, row: usize, col: usize) -> f64 {
+    fn cofactor(&self, row: usize, col: usize) -> Elem {
         let n = if (row + col) % 2 == 1 { -1.0 } else { 1.0 };
         n * self.minor(row, col)
     }
 
     fn to_index(&self, y: usize, x: usize) -> usize {
-        to_index(4, y, x)
+        to_index(Matrix4x4::N, y, x)
     }
 
     fn to_yx(&self, i: usize) -> (usize, usize) {
-        to_yx(4, i)
+        to_yx(Matrix4x4::N, i)
     }
 }
 
@@ -206,12 +218,14 @@ impl Mul<Matrix4x4> for Matrix4x4 {
     type Output = Self;
 
     fn mul(self, rhs: Matrix4x4) -> Self::Output {
-        let mut data = [0.0; 16];
+        let mut data = [0.0; Matrix4x4::size()];
 
-        for y in 0..4 {
-            for x in 0..4 {
-                let n: f64 = (0..4).map(|n| self.get(y, n) * rhs.get(n, x)).sum();
-                let i = to_index(4, y, x);
+        for y in 0..Matrix4x4::N {
+            for x in 0..Matrix4x4::N {
+                let n: Elem = (0..Matrix4x4::N)
+                    .map(|n| self.get(y, n) * rhs.get(n, x))
+                    .sum();
+                let i = to_index(Matrix4x4::N, y, x);
                 data[i] = n;
             }
         }
@@ -224,9 +238,9 @@ impl Mul<Tuple4> for Matrix4x4 {
     type Output = Tuple4;
 
     fn mul(self, rhs: Tuple4) -> Self::Output {
-        let mut data = [0.0; 4];
+        let mut data = [0.0; Matrix4x4::N];
 
-        for (i, row) in self.data.chunks(4).enumerate() {
+        for (i, row) in self.data.chunks(Matrix4x4::N).enumerate() {
             let n = row[0] * rhs.x + row[1] * rhs.y + row[2] * rhs.z + row[3] * rhs.w;
             data[i] = n;
         }
