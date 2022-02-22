@@ -159,10 +159,10 @@ impl Matrix4x4 {
         self.is_invertible_with_det().0
     }
 
-    pub fn inverse(self) -> Self {
+    pub fn inverse(self) -> Option<Self> {
         let (is_invertible, det) = self.is_invertible_with_det();
         if !is_invertible {
-            panic!("Matrix is not invertible");
+            return None;
         }
         let mut matrix = Matrix4x4::zero();
         for y in 0..Matrix4x4::N {
@@ -173,7 +173,7 @@ impl Matrix4x4 {
             }
         }
 
-        matrix
+        Some(matrix)
     }
 
     fn is_invertible_with_det(&self) -> (bool, Elem) {
@@ -468,7 +468,7 @@ mod tests {
             -5.0, 2.0, 6.0, -8.0, 1.0, -5.0, 1.0, 8.0, 7.0, 7.0, -6.0, -7.0, 1.0, -3.0, 7.0, 4.0,
         ]);
 
-        let inverse = matrix.inverse();
+        let inverse = matrix.inverse().unwrap();
 
         let expected = Matrix4x4::new([
             0.21805, 0.45113, 0.24060, -0.04511, -0.80827, -1.45677, -0.44361, 0.52068, -0.07895,
@@ -489,7 +489,7 @@ mod tests {
             -5.0, 2.0, 6.0, -8.0, 1.0, -5.0, 1.0, 8.0, 7.0, 7.0, -6.0, -7.0, 1.0, -3.0, 7.0, 4.0,
         ]);
 
-        let double_inversed = matrix.clone().inverse().inverse();
+        let double_inversed = matrix.clone().inverse().unwrap().inverse().unwrap();
 
         for y in 0..4 {
             for x in 0..4 {
@@ -501,12 +501,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
-    fn test_inverse_should_panic_on_non_invertible_matrix() {
+    fn test_inverse_of_non_invertible_matrix() {
         let matrix = Matrix4x4::new([
             -4.0, 2.0, -2.0, -3.0, 9.0, 6.0, 2.0, 6.0, 0.0, -5.0, 1.0, -5.0, 0.0, 0.0, 0.0, 0.0,
         ]);
 
-        matrix.inverse();
+        let inverse = matrix.inverse();
+
+        assert_eq!(inverse, None);
     }
 }
