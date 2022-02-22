@@ -138,6 +138,15 @@ impl Matrix4x4 {
         m
     }
 
+    pub fn scaling(x: Elem, y: Elem, z: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[0] = x;
+        m.data[5] = y;
+        m.data[10] = z;
+
+        m
+    }
+
     pub fn get(&self, y: usize, x: usize) -> Elem {
         let i = self.to_index(y, x);
         self.data[i]
@@ -548,5 +557,45 @@ mod tests {
         let result = t * p;
 
         assert_eq!(result, Tuple4::vector(-3.0, 4.0, 5.0));
+    }
+
+    #[test]
+    fn test_scaling_matrix_applied_to_a_point() {
+        let s = Matrix4x4::scaling(2.0, 3.0, 4.0);
+        let p = Tuple4::point(-4.0, 6.0, 8.0);
+
+        let result = s * p;
+
+        assert_eq!(result, Tuple4::point(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn test_scaling_matrix_applied_to_a_vector() {
+        let s = Matrix4x4::scaling(2.0, 3.0, 4.0);
+        let p = Tuple4::vector(-4.0, 6.0, 8.0);
+
+        let result = s * p;
+
+        assert_eq!(result, Tuple4::vector(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn test_inverse_of_scaling_matrix_applied_to_a_vector() {
+        let s = Matrix4x4::scaling(2.0, 3.0, 4.0).inverse().unwrap();
+        let p = Tuple4::vector(-4.0, 6.0, 8.0);
+
+        let result = s * p;
+
+        assert_eq!(result, Tuple4::vector(-2.0, 2.0, 2.0));
+    }
+
+    #[test]
+    fn test_reflection_as_scaling_by_negative_value() {
+        let s = Matrix4x4::scaling(-1.0, 1.0, 1.0);
+        let p = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = s * p;
+
+        assert_eq!(result, Tuple4::point(-2.0, 3.0, 4.0));
     }
 }
