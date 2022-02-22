@@ -129,6 +129,15 @@ impl Matrix4x4 {
         matrix
     }
 
+    pub fn translation(x: Elem, y: Elem, z: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[3] = x;
+        m.data[7] = y;
+        m.data[11] = z;
+
+        m
+    }
+
     pub fn get(&self, y: usize, x: usize) -> Elem {
         let i = self.to_index(y, x);
         self.data[i]
@@ -509,5 +518,35 @@ mod tests {
         let inverse = matrix.inverse();
 
         assert_eq!(inverse, None);
+    }
+
+    #[test]
+    fn test_multiplying_point_by_translation_matrix() {
+        let t = Matrix4x4::translation(5.0, -3.0, 2.0);
+        let p = Tuple4::point(-3.0, 4.0, 5.0);
+
+        let result = t * p;
+
+        assert_eq!(result, Tuple4::point(2.0, 1.0, 7.0));
+    }
+
+    #[test]
+    fn test_multiplying_point_by_inverse_of_translation_matrix() {
+        let t = Matrix4x4::translation(5.0, -3.0, 2.0).inverse().unwrap();
+        let p = Tuple4::point(-3.0, 4.0, 5.0);
+
+        let result = t * p;
+
+        assert_eq!(result, Tuple4::point(-8.0, 7.0, 3.0));
+    }
+
+    #[test]
+    fn test_multiplying_vector_by_inverse_matrix() {
+        let t = Matrix4x4::translation(5.0, -3.0, 2.0);
+        let p = Tuple4::vector(-3.0, 4.0, 5.0);
+
+        let result = t * p;
+
+        assert_eq!(result, Tuple4::vector(-3.0, 4.0, 5.0));
     }
 }
