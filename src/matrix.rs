@@ -177,6 +177,18 @@ impl Matrix4x4 {
         m
     }
 
+    pub fn shearing(xy: Elem, xz: Elem, yx: Elem, yz: Elem, zx: Elem, zy: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[1] = xy;
+        m.data[2] = xz;
+        m.data[4] = yx;
+        m.data[6] = yz;
+        m.data[8] = zx;
+        m.data[9] = zy;
+
+        m
+    }
+
     pub fn get(&self, y: usize, x: usize) -> Elem {
         let i = self.to_index(y, x);
         self.data[i]
@@ -701,5 +713,65 @@ mod tests {
         assert!(equal(r2.x, -1.0));
         assert!(equal(r2.y, 0.0));
         assert_eq!(r1.z, 0.0);
+    }
+
+    #[test]
+    fn test_shearing_x_in_proportion_to_y() {
+        let transform = Matrix4x4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(5.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_x_in_proportion_to_z() {
+        let transform = Matrix4x4::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(6.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_y_in_proportion_to_x() {
+        let transform = Matrix4x4::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(2.0, 5.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_y_in_proportion_to_z() {
+        let transform = Matrix4x4::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(2.0, 7.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_z_in_proportion_to_x() {
+        let transform = Matrix4x4::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(2.0, 3.0, 6.0));
+    }
+
+    #[test]
+    fn test_shearing_z_in_proportion_to_y() {
+        let transform = Matrix4x4::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let point = Tuple4::point(2.0, 3.0, 4.0);
+
+        let result = transform * point;
+
+        assert_eq!(result, Tuple4::point(2.0, 3.0, 7.0));
     }
 }
