@@ -321,6 +321,10 @@ mod tests {
         (a - b).abs() < EPSILON
     }
 
+    fn tuples_equal(a: &Tuple4, b: &Tuple4) -> bool {
+        equal(a.x, b.x) && equal(a.y, b.y) && equal(a.z, b.z) && a.w == b.w
+    }
+
     #[test]
     fn test_constructing_and_inspecting_2x2_matrix() {
         let matrix = Matrix2x2::new([-3.0, 5.0, 1.0, -2.0]);
@@ -773,5 +777,35 @@ mod tests {
         let result = transform * point;
 
         assert_eq!(result, Tuple4::point(2.0, 3.0, 7.0));
+    }
+
+    #[test]
+    fn test_individual_transformations_applied_in_sequence() {
+        let p = Tuple4::point(1.0, 0.0, 1.0);
+        let a = Matrix4x4::rotation_x(PI / 2.0);
+        let b = Matrix4x4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4x4::translation(10.0, 5.0, 7.0);
+
+        let p2 = a * p;
+        assert!(tuples_equal(&p2, &Tuple4::point(1.0, -1.0, 0.0)));
+
+        let p3 = b * p2;
+        assert!(tuples_equal(&p3, &Tuple4::point(5.0, -5.0, 0.0)));
+
+        let p4 = c * p3;
+        assert!(tuples_equal(&p4, &Tuple4::point(15.0, 0.0, 7.0)));
+    }
+
+    #[test]
+    fn test_chained_transformations_must_be_applied_in_reverse() {
+        let p = Tuple4::point(1.0, 0.0, 1.0);
+        let a = Matrix4x4::rotation_x(PI / 2.0);
+        let b = Matrix4x4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4x4::translation(10.0, 5.0, 7.0);
+        let t = c * b * a;
+
+        let result = t * p;
+
+        assert!(tuples_equal(&result, &Tuple4::point(15.0, 0.0, 7.0)));
     }
 }
