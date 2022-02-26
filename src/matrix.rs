@@ -190,7 +190,7 @@ impl Matrix4x4 {
     }
 
     pub fn get(&self, y: usize, x: usize) -> Elem {
-        let i = self.to_index(y, x);
+        let i = self.get_index(y, x);
         self.data[i]
     }
 
@@ -198,8 +198,8 @@ impl Matrix4x4 {
         let mut data = self.data;
         for y in 0..Matrix4x4::N {
             for x in y..Matrix4x4::N {
-                let old_i = self.to_index(y, x);
-                let new_i = self.to_index(x, y);
+                let old_i = self.get_index(y, x);
+                let new_i = self.get_index(x, y);
                 data.swap(new_i, old_i);
             }
         }
@@ -228,7 +228,7 @@ impl Matrix4x4 {
         for y in 0..Matrix4x4::N {
             for x in 0..Matrix4x4::N {
                 let c = self.cofactor(y, x);
-                let i = self.to_index(x, y);
+                let i = self.get_index(x, y);
                 matrix.data[i] = c / det;
             }
         }
@@ -246,7 +246,7 @@ impl Matrix4x4 {
             .data
             .iter()
             .enumerate()
-            .map(|(i, n)| (self.to_yx(i), n))
+            .map(|(i, n)| (self.get_yx(i), n))
             .filter(|&((y, x), _)| y != row && x != col)
             .map(|(_, &n)| n)
             .collect::<Vec<Elem>>()
@@ -265,11 +265,11 @@ impl Matrix4x4 {
         n * self.minor(row, col)
     }
 
-    fn to_index(&self, y: usize, x: usize) -> usize {
+    fn get_index(&self, y: usize, x: usize) -> usize {
         to_index(Matrix4x4::N, y, x)
     }
 
-    fn to_yx(&self, i: usize) -> (usize, usize) {
+    fn get_yx(&self, i: usize) -> (usize, usize) {
         to_yx(Matrix4x4::N, i)
     }
 }
