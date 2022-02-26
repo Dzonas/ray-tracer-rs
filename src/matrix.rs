@@ -99,7 +99,7 @@ impl Matrix3x3 {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Matrix4x4 {
     data: [Elem; Matrix4x4::size()],
 }
@@ -445,7 +445,7 @@ mod tests {
         ]);
         let identity = Matrix4x4::identity();
 
-        let result = matrix.clone() * identity;
+        let result = matrix * identity;
 
         assert_eq!(result, matrix);
     }
@@ -482,7 +482,7 @@ mod tests {
             0.0, 9.0, 3.0, 0.0, 9.0, 8.0, 0.0, 8.0, 1.0, 8.0, 5.0, 3.0, 0.0, 0.0, 5.0, 8.0,
         ]);
 
-        let transposed_twice_matrix = matrix.clone().transpose().transpose();
+        let transposed_twice_matrix = matrix.transpose().transpose();
 
         assert_eq!(transposed_twice_matrix, matrix);
     }
@@ -561,7 +561,7 @@ mod tests {
             -5.0, 2.0, 6.0, -8.0, 1.0, -5.0, 1.0, 8.0, 7.0, 7.0, -6.0, -7.0, 1.0, -3.0, 7.0, 4.0,
         ]);
 
-        let double_inversed = matrix.clone().inverse().unwrap().inverse().unwrap();
+        let double_inversed = matrix.inverse().unwrap().inverse().unwrap();
 
         for y in 0..4 {
             for x in 0..4 {
