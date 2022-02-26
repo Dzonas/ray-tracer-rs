@@ -147,6 +147,36 @@ impl Matrix4x4 {
         m
     }
 
+    pub fn rotation_x(x: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[5] = x.cos();
+        m.data[6] = -x.sin();
+        m.data[9] = x.sin();
+        m.data[10] = x.cos();
+
+        m
+    }
+
+    pub fn rotation_y(y: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[0] = y.cos();
+        m.data[2] = y.sin();
+        m.data[8] = -y.sin();
+        m.data[10] = y.cos();
+
+        m
+    }
+
+    pub fn rotation_z(z: Elem) -> Self {
+        let mut m = Self::identity();
+        m.data[0] = z.cos();
+        m.data[1] = -z.sin();
+        m.data[4] = z.sin();
+        m.data[5] = z.cos();
+
+        m
+    }
+
     pub fn get(&self, y: usize, x: usize) -> Elem {
         let i = self.to_index(y, x);
         self.data[i]
@@ -269,7 +299,15 @@ impl Mul<Tuple4> for Matrix4x4 {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::PI;
+
     use super::*;
+
+    const EPSILON: f64 = 1e-6;
+
+    fn equal(a: f64, b: f64) -> bool {
+        (a - b).abs() < EPSILON
+    }
 
     #[test]
     fn test_constructing_and_inspecting_2x2_matrix() {
@@ -597,5 +635,71 @@ mod tests {
         let result = s * p;
 
         assert_eq!(result, Tuple4::point(-2.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_rotating_point_around_x_axis() {
+        let p = Tuple4::point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4x4::rotation_x(PI / 4.0);
+        let full_quarter = Matrix4x4::rotation_x(PI / 2.0);
+
+        let r1 = half_quarter * p;
+        let r2 = full_quarter * p;
+
+        assert_eq!(r1.x, 0.0);
+        assert!(equal(r1.y, 2.0_f64.sqrt() / 2.0));
+        assert!(equal(r1.z, 2.0_f64.sqrt() / 2.0));
+
+        assert_eq!(r2.x, 0.0);
+        assert!(equal(r2.y, 0.0));
+        assert!(equal(r2.z, 1.0));
+    }
+
+    #[test]
+    fn test_inverse_of_x_rotation_rotates_in_opposite_direction() {
+        let p = Tuple4::point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4x4::rotation_x(PI / 4.0);
+
+        let result = half_quarter.inverse().unwrap() * p;
+
+        assert_eq!(result.x, 0.0);
+        assert!(equal(result.y, 2.0_f64.sqrt() / 2.0));
+        assert!(equal(result.z, -2.0_f64.sqrt() / 2.0));
+    }
+
+    #[test]
+    fn test_rotating_point_around_y_axis() {
+        let p = Tuple4::point(0.0, 0.0, 1.0);
+        let half_quarter = Matrix4x4::rotation_y(PI / 4.0);
+        let full_quarter = Matrix4x4::rotation_y(PI / 2.0);
+
+        let r1 = half_quarter * p;
+        let r2 = full_quarter * p;
+
+        assert!(equal(r1.x, 2.0_f64.sqrt() / 2.0));
+        assert_eq!(r1.y, 0.0);
+        assert!(equal(r1.z, 2.0_f64.sqrt() / 2.0));
+
+        assert!(equal(r2.x, 1.0));
+        assert_eq!(r2.y, 0.0);
+        assert!(equal(r2.z, 0.0));
+    }
+
+    #[test]
+    fn test_rotating_point_around_z_axis() {
+        let p = Tuple4::point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4x4::rotation_z(PI / 4.0);
+        let full_quarter = Matrix4x4::rotation_z(PI / 2.0);
+
+        let r1 = half_quarter * p;
+        let r2 = full_quarter * p;
+
+        assert!(equal(r1.x, -2.0_f64.sqrt() / 2.0));
+        assert!(equal(r1.y, 2.0_f64.sqrt() / 2.0));
+        assert_eq!(r1.z, 0.0);
+
+        assert!(equal(r2.x, -1.0));
+        assert!(equal(r2.y, 0.0));
+        assert_eq!(r1.z, 0.0);
     }
 }
