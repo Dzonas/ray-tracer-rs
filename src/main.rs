@@ -1,29 +1,29 @@
-use std::f64::consts::PI;
+use ray_tracer_rs::{canvas::Canvas, ray::Ray, sphere::Sphere, tuple::Tuple4};
 
-use ray_tracer_rs::{canvas::Canvas, matrix::Matrix4x4, tuple::Tuple4};
-
-const FULL_CIRCLE: f64 = 2.0 * PI;
-const N: usize = 12;
-const WIDTH: usize = 48;
-const HEIGHT: usize = 48;
+const WALL_Z: f64 = 10.0;
+const WALL_SIZE: f64 = 7.0;
+const CANVAS_PIXELS: usize = 800;
+const PIXEL_SIZE: f64 = WALL_SIZE / CANVAS_PIXELS as f64;
+const HALF: f64 = WALL_SIZE / 2.0;
 
 fn main() {
-    let color = Tuple4::point(1.0, 1.0, 1.0);
-    let mut canvas = Canvas::new(WIDTH, HEIGHT);
-    let c = Tuple4::point(0.0, 0.0, 0.0);
-    let scale = Matrix4x4::scaling(12.0, 12.0, 12.0);
-    let translation = Matrix4x4::translation(0.0, 0.0, 1.0);
+    let mut canvas = Canvas::new(CANVAS_PIXELS, CANVAS_PIXELS);
+    let ray_origin = Tuple4::point(0.0, 0.0, -5.0);
+    let color = Tuple4::point(1.0, 0.0, 0.0);
+    let sphere = Sphere::new();
 
-    for i in 0..N {
-        let angle = FULL_CIRCLE / (N as f64) * i as f64;
-        let rotation = Matrix4x4::rotation_y(angle);
-        let transformation = scale * rotation * translation;
-        let p = transformation * c;
+    for y in 0..CANVAS_PIXELS {
+        let world_y = -HALF + PIXEL_SIZE * y as f64;
+        for x in 0..CANVAS_PIXELS {
+            let world_x = -HALF + PIXEL_SIZE * x as f64;
+            let pos = Tuple4::point(world_x, world_y, WALL_Z);
+            let ray = Ray::new(ray_origin, (pos - ray_origin).normalize());
+            let xs = sphere.intersect(&ray);
 
-        let x = (p.x + (WIDTH as f64) / 2.0) as usize;
-        let y = (p.z + (HEIGHT as f64) / 2.0) as usize;
-
-        canvas.put_pixel(color, (x, y));
+            if xs.hit().is_some() {
+                canvas.put_pixel(color, (x as usize, y as usize));
+            }
+        }
     }
 
     println!("{}", canvas.to_ppm());
