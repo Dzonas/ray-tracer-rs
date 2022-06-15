@@ -1,4 +1,4 @@
-use crate::tuple::Tuple4;
+use crate::{ppm::PPM, tuple::Tuple4};
 
 pub struct Canvas {
     width: usize,
@@ -7,8 +7,6 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    const PPM_HEADER: &'static str = "P3";
-
     pub fn new(width: usize, height: usize) -> Canvas {
         let pixels = vec![Tuple4::new(0.0, 0.0, 0.0, 0.0); width * height];
 
@@ -42,32 +40,6 @@ impl Canvas {
         let i = self.to_index(at);
         &self.pixels[i]
     }
-
-    pub fn to_ppm(&self) -> String {
-        let header = format!(
-            "{}\n{} {}\n{}\n",
-            Canvas::PPM_HEADER,
-            self.width,
-            self.height,
-            Tuple4::PPM_MAX
-        );
-
-        let ppm_pixels: String = self
-            .pixels
-            .iter()
-            .map(|t| t.to_ppm())
-            .enumerate()
-            .map(|(i, s)| {
-                if (i + 1) % self.width == 0 {
-                    s + "\n"
-                } else {
-                    s + " "
-                }
-            })
-            .collect();
-
-        header + &ppm_pixels
-    }
 }
 
 impl IntoIterator for Canvas {
@@ -76,6 +48,20 @@ impl IntoIterator for Canvas {
 
     fn into_iter(self) -> Self::IntoIter {
         self.pixels.into_iter()
+    }
+}
+
+impl PPM<Tuple4> for Canvas {
+    fn width(&self) -> usize {
+        self.width
+    }
+
+    fn height(&self) -> usize {
+        self.height
+    }
+
+    fn colors(&self) -> &[Tuple4] {
+        &self.pixels
     }
 }
 
@@ -104,32 +90,5 @@ mod tests {
         canvas.put_pixel(pixel, (2, 3));
 
         assert_eq!(*canvas.get_pixel((2, 3)), pixel);
-    }
-
-    #[test]
-    fn test_to_ppm_header() {
-        let c = Canvas::new(5, 3);
-
-        let s = c.to_ppm();
-
-        let mut l = s.lines();
-        assert_eq!(Some("P3"), l.next());
-        assert_eq!(Some("5 3"), l.next());
-        assert_eq!(Some("255"), l.next());
-    }
-
-    #[test]
-    fn test_to_ppm_pixel_data() {
-        let mut c = Canvas::new(5, 3);
-        c.put_pixel(Tuple4::new(1.5, 0.0, 0.0, 0.0), (0, 0));
-        c.put_pixel(Tuple4::new(0.0, 0.5, 0.0, 0.0), (2, 1));
-        c.put_pixel(Tuple4::new(-0.5, 0.0, 1.0, 0.0), (4, 2));
-
-        let s = c.to_ppm();
-
-        let mut l = s.lines().skip(3);
-        assert_eq!(Some("255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"), l.next());
-        assert_eq!(Some("0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"), l.next());
-        assert_eq!(Some("0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"), l.next());
     }
 }

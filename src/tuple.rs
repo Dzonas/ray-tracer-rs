@@ -1,5 +1,7 @@
 use std::ops::{Add, Div, Mul, Sub};
 
+use crate::ppm::RGB;
+
 type Elem = f64;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -11,8 +13,6 @@ pub struct Tuple4 {
 }
 
 impl Tuple4 {
-    pub const PPM_MAX: Elem = 255.0;
-
     pub fn new<T: Copy + Into<Elem>>(x: T, y: T, z: T, w: T) -> Self {
         Tuple4 {
             x: x.into(),
@@ -61,19 +61,6 @@ impl Tuple4 {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
-    }
-
-    pub fn to_ppm(&self) -> String {
-        format!(
-            "{} {} {}",
-            Tuple4::to_ppm_pixel_value(self.x),
-            Tuple4::to_ppm_pixel_value(self.y),
-            Tuple4::to_ppm_pixel_value(self.z)
-        )
-    }
-
-    fn to_ppm_pixel_value(n: Elem) -> u8 {
-        (n * Tuple4::PPM_MAX).clamp(0.0, Tuple4::PPM_MAX).round() as u8
     }
 }
 
@@ -130,6 +117,24 @@ impl Div<Elem> for Tuple4 {
     fn div(self, other: Elem) -> Self::Output {
         self * (1.0 / other)
     }
+}
+
+impl RGB for Tuple4 {
+    fn r(&self) -> u8 {
+        clamp_to_u8(self.x)
+    }
+
+    fn g(&self) -> u8 {
+        clamp_to_u8(self.y)
+    }
+
+    fn b(&self) -> u8 {
+        clamp_to_u8(self.z)
+    }
+}
+
+fn clamp_to_u8(n: f64) -> u8 {
+    (n * 255.0).clamp(0.0, 255.0).round() as u8
 }
 
 #[cfg(test)]
@@ -277,5 +282,14 @@ mod tests {
         let result = v1.cross(v2);
 
         assert_eq!(result, Tuple4::vector(-1.0, 2.0, -1.0));
+    }
+
+    #[test]
+    fn test_tuple_color_mapping() {
+        let p = Tuple4::point(1.0, 0.5, 1.5);
+
+        assert_eq!(p.r(), 255);
+        assert_eq!(p.g(), 128);
+        assert_eq!(p.b(), 255);
     }
 }

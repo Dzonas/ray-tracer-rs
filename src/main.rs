@@ -1,4 +1,6 @@
-use ray_tracer_rs::{canvas::Canvas, ray::Ray, sphere::Sphere, tuple::Tuple4};
+use std::io;
+
+use ray_tracer_rs::{canvas::Canvas, ppm::PPMEncoder, ray::Ray, sphere::Sphere, tuple::Tuple4};
 
 const WALL_Z: f64 = 10.0;
 const WALL_SIZE: f64 = 7.0;
@@ -6,7 +8,7 @@ const CANVAS_PIXELS: usize = 800;
 const PIXEL_SIZE: f64 = WALL_SIZE / CANVAS_PIXELS as f64;
 const HALF: f64 = WALL_SIZE / 2.0;
 
-fn main() {
+fn main() -> io::Result<()> {
     let mut canvas = Canvas::new(CANVAS_PIXELS, CANVAS_PIXELS);
     let ray_origin = Tuple4::point(0.0, 0.0, -5.0);
     let color = Tuple4::point(1.0, 0.0, 0.0);
@@ -26,5 +28,9 @@ fn main() {
         }
     }
 
-    println!("{}", canvas.to_ppm());
+    let stdout = io::stdout();
+    let mut handle = stdout.lock();
+    let mut encoder = PPMEncoder::new(&mut handle);
+
+    encoder.write(&canvas)
 }
