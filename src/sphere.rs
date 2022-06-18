@@ -55,7 +55,11 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, p: Tuple4) -> Tuple4 {
-        (p - Tuple4::point(0.0, 0.0, 0.0)).normalize()
+        let object_point = self.transform.inverse().unwrap() * p;
+        let object_normal = object_point - Tuple4::point(0.0, 0.0, 0.0);
+        let mut world_normal = self.transform.inverse().unwrap().transpose() * object_normal;
+        world_normal.w = 0.0;
+        world_normal.normalize()
     }
 }
 
@@ -112,9 +116,16 @@ impl<'a> Index<usize> for SphereIntersections<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::PI;
     use std::ptr;
 
     use super::*;
+
+    const EPSILON: f64 = 1e-6;
+
+    fn equal(a: f64, b: f64) -> bool {
+        (a - b).abs() < EPSILON
+    }
 
     #[test]
     fn test_a_ray_intersects_sphere_at_two_points() {
@@ -341,5 +352,36 @@ mod tests {
             )
             .normalize()
         );
+    }
+
+    #[test]
+    fn test_computing_the_normal_on_a_translated_sphere() {
+        let mut s = Sphere::new();
+        s.set_transform(Matrix4x4::translation(0.0, 1.0, 0.0));
+
+        let n = s.normal_at(Tuple4::point(0.0, 1.70711, -0.70711));
+
+        assert_eq!(n.x, 0.0);
+        assert!(equal(n.y, 0.707106));
+        assert!(equal(n.z, -0.707106));
+        assert!(n.is_vector());
+    }
+
+    #[test]
+    fn test_computing_the_normal_on_a_transformed_sphere() {
+        let mut s = Sphere::new();
+        let m = Matrix4x4::scaling(1.0, 0.5, 1.0) * Matrix4x4::rotation_z(PI / 5.0);
+        s.set_transform(m);
+
+        let n = s.normal_at(Tuple4::point(
+            0.0,
+            2.0_f64.sqrt() / 2.0,
+            -(2.0_f64.sqrt()) / 2.0,
+        ));
+
+        assert_eq!(n.x, 0.0);
+        assert!(equal(n.y, 0.970142));
+        assert!(equal(n.z, -0.242535));
+        assert!(n.is_vector());
     }
 }
