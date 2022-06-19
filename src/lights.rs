@@ -1,6 +1,6 @@
 use crate::tuple::Tuple4;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct PointLight {
     position: Tuple4,
     intensity: Tuple4,
