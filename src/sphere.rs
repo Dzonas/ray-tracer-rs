@@ -69,6 +69,10 @@ impl Sphere {
     pub fn set_material(&mut self, m: Material) {
         self.material = m;
     }
+
+    pub fn get_material(&self) -> &Material {
+        &self.material
+    }
 }
 
 impl Default for Sphere {
