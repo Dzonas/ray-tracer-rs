@@ -62,6 +62,10 @@ impl Tuple4 {
             self.x * other.y - self.y * other.x,
         )
     }
+
+    pub fn reflect(self, normal: Tuple4) -> Self {
+        self - normal * 2.0 * self.dot(&normal)
+    }
 }
 
 impl Add for Tuple4 {
@@ -291,5 +295,27 @@ mod tests {
         assert_eq!(p.r(), 255);
         assert_eq!(p.g(), 128);
         assert_eq!(p.b(), 255);
+    }
+
+    #[test]
+    fn test_reflecting_vector_approaching_at_45_deg() {
+        let v = Tuple4::vector(1.0, -1.0, 0.0);
+        let n = Tuple4::vector(0.0, 1.0, 0.0);
+
+        let r = v.reflect(n);
+
+        assert_eq!(r, Tuple4::vector(1.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn test_reflecting_vector_off_slanted_surface() {
+        let v = Tuple4::vector(0.0, -1.0, 0.0);
+        let n = Tuple4::vector(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+
+        let r = v.reflect(n);
+
+        assert!(equal(r.x, 1.0));
+        assert!(equal(r.y, 0.0));
+        assert_eq!(r.z, 0.0);
     }
 }
