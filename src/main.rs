@@ -1,6 +1,9 @@
 use std::io;
 
-use ray_tracer_rs::{canvas::Canvas, ppm::PPMEncoder, ray::Ray, sphere::Sphere, tuple::Tuple4};
+use ray_tracer_rs::{
+    canvas::Canvas, lights::PointLight, materials::Material, ppm::PPMEncoder, ray::Ray,
+    sphere::Sphere, tuple::Tuple4,
+};
 
 const WALL_Z: f64 = 10.0;
 const WALL_SIZE: f64 = 7.0;
@@ -11,8 +14,16 @@ const HALF: f64 = WALL_SIZE / 2.0;
 fn main() -> io::Result<()> {
     let mut canvas = Canvas::new(CANVAS_PIXELS, CANVAS_PIXELS);
     let ray_origin = Tuple4::point(0.0, 0.0, -5.0);
-    let color = Tuple4::point(1.0, 0.0, 0.0);
-    let sphere = Sphere::new();
+    let mut sphere = Sphere::new();
+    let material = Material {
+        color: Tuple4::point(1.0, 0.2, 1.0),
+        ..Default::default()
+    };
+    sphere.set_material(material);
+    let light = PointLight::new(
+        Tuple4::point(-10.0, -10.0, -10.0),
+        Tuple4::point(1.0, 1.0, 1.0),
+    );
 
     for y in 0..CANVAS_PIXELS {
         let world_y = -HALF + PIXEL_SIZE * y as f64;
@@ -22,7 +33,14 @@ fn main() -> io::Result<()> {
             let ray = Ray::new(ray_origin, (pos - ray_origin).normalize());
             let xs = sphere.intersect(&ray);
 
-            if xs.hit().is_some() {
+            if let Some(hit) = xs.hit() {
+                let point = ray.position(hit.t);
+                let normal = hit.sphere.normal_at(point);
+                let eye = -1.0 * ray.direction;
+                let color = hit
+                    .sphere
+                    .get_material()
+                    .lighting(light, point, eye, normal);
                 canvas.put_pixel(color, (x as usize, y as usize));
             }
         }
