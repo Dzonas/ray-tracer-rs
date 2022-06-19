@@ -81,10 +81,9 @@ impl Default for Sphere {
     }
 }
 
-#[allow(dead_code)]
 pub struct SphereIntersection<'a> {
-    t: f64,
-    sphere: &'a Sphere,
+    pub t: f64,
+    pub sphere: &'a Sphere,
 }
 
 impl SphereIntersection<'_> {
