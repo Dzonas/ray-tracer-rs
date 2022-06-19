@@ -1,5 +1,6 @@
 use std::ops::Index;
 
+use crate::materials::Material;
 use crate::matrix::Matrix4x4;
 use crate::ray::Ray;
 use crate::tuple::Tuple4;
@@ -9,6 +10,7 @@ pub struct Sphere {
     origin: Tuple4,
     radius: f64,
     transform: Matrix4x4,
+    material: Material,
 }
 
 impl Sphere {
@@ -16,11 +18,13 @@ impl Sphere {
         let origin = Tuple4::point(0.0, 0.0, 0.0);
         let radius = 1.0;
         let transform = Matrix4x4::identity();
+        let material = Material::default();
 
         Sphere {
             origin,
             radius,
             transform,
+            material,
         }
     }
 
@@ -60,6 +64,10 @@ impl Sphere {
         let mut world_normal = self.transform.inverse().unwrap().transpose() * object_normal;
         world_normal.w = 0.0;
         world_normal.normalize()
+    }
+
+    pub fn set_material(&mut self, m: Material) {
+        self.material = m;
     }
 }
 
@@ -383,5 +391,23 @@ mod tests {
         assert!(equal(n.y, 0.970142));
         assert!(equal(n.z, -0.242535));
         assert!(n.is_vector());
+    }
+
+    #[test]
+    fn test_sphere_has_default_material() {
+        let s = Sphere::new();
+
+        assert_eq!(s.material, Material::default());
+    }
+
+    #[test]
+    fn test_sphere_may_be_assigned_a_material() {
+        let mut s = Sphere::new();
+        let mut m = Material::default();
+        m.ambient = 1.0;
+
+        s.set_material(m.clone());
+
+        assert_eq!(s.material, m);
     }
 }
