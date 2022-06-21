@@ -1,7 +1,5 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::ppm::RGB;
-
 type Elem = f64;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -121,24 +119,6 @@ impl Div<Elem> for Tuple4 {
     fn div(self, other: Elem) -> Self::Output {
         self * (1.0 / other)
     }
-}
-
-impl RGB for Tuple4 {
-    fn r(&self) -> u8 {
-        clamp_to_u8(self.x)
-    }
-
-    fn g(&self) -> u8 {
-        clamp_to_u8(self.y)
-    }
-
-    fn b(&self) -> u8 {
-        clamp_to_u8(self.z)
-    }
-}
-
-fn clamp_to_u8(n: f64) -> u8 {
-    (n * 255.0).clamp(0.0, 255.0).round() as u8
 }
 
 #[cfg(test)]
@@ -286,15 +266,6 @@ mod tests {
         let result = v1.cross(v2);
 
         assert_eq!(result, Tuple4::vector(-1.0, 2.0, -1.0));
-    }
-
-    #[test]
-    fn test_tuple_color_mapping() {
-        let p = Tuple4::point(1.0, 0.5, 1.5);
-
-        assert_eq!(p.r(), 255);
-        assert_eq!(p.g(), 128);
-        assert_eq!(p.b(), 255);
     }
 
     #[test]
