@@ -1,5 +1,7 @@
 use std::ops::{Add, Mul, Sub};
 
+use crate::ppm::RGB;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Color {
     pub r: f64,
@@ -43,6 +45,24 @@ impl Mul for Color {
     fn mul(self, rhs: Self) -> Self::Output {
         Self::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
     }
+}
+
+impl RGB for Color {
+    fn r(&self) -> u8 {
+        clamp_to_u8(self.r)
+    }
+
+    fn g(&self) -> u8 {
+        clamp_to_u8(self.g)
+    }
+
+    fn b(&self) -> u8 {
+        clamp_to_u8(self.b)
+    }
+}
+
+fn clamp_to_u8(n: f64) -> u8 {
+    (n * 255.0).clamp(0.0, 255.0).round() as u8
 }
 
 #[cfg(test)]

@@ -1,8 +1,8 @@
 use std::io;
 
 use ray_tracer_rs::{
-    canvas::Canvas, lights::PointLight, materials::Material, ppm::PPMEncoder, ray::Ray,
-    sphere::Sphere, tuple::Tuple4,
+    canvas::Canvas, color::Color, lights::PointLight, materials::Material, ppm::PPMEncoder,
+    ray::Ray, sphere::Sphere, tuple::Tuple4,
 };
 
 const WALL_Z: f64 = 10.0;
@@ -16,13 +16,13 @@ fn main() -> io::Result<()> {
     let ray_origin = Tuple4::point(0.0, 0.0, -5.0);
     let mut sphere = Sphere::new();
     let material = Material {
-        color: Tuple4::point(1.0, 0.2, 1.0),
+        color: Color::new(1.0, 0.2, 1.0),
         ..Default::default()
     };
     sphere.set_material(material);
     let light = PointLight::new(
         Tuple4::point(-10.0, -10.0, -10.0),
-        Tuple4::point(1.0, 1.0, 1.0),
+        Color::new(1.0, 1.0, 1.0),
     );
 
     for y in 0..CANVAS_PIXELS {

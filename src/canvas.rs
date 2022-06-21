@@ -1,14 +1,14 @@
-use crate::{ppm::PPM, tuple::Tuple4};
+use crate::{color::Color, ppm::PPM};
 
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixels: Vec<Tuple4>,
+    pixels: Vec<Color>,
 }
 
 impl Canvas {
     pub fn new(width: usize, height: usize) -> Canvas {
-        let pixels = vec![Tuple4::new(0.0, 0.0, 0.0, 0.0); width * height];
+        let pixels = vec![Color::new(0.0, 0.0, 0.0); width * height];
 
         Canvas {
             width,
@@ -31,19 +31,19 @@ impl Canvas {
         self.height
     }
 
-    pub fn put_pixel(&mut self, pixel: Tuple4, at: (usize, usize)) {
+    pub fn put_pixel(&mut self, pixel: Color, at: (usize, usize)) {
         let i = self.to_index(at);
         self.pixels[i] = pixel;
     }
 
-    pub fn get_pixel(&self, at: (usize, usize)) -> &Tuple4 {
+    pub fn get_pixel(&self, at: (usize, usize)) -> &Color {
         let i = self.to_index(at);
         &self.pixels[i]
     }
 }
 
 impl IntoIterator for Canvas {
-    type Item = Tuple4;
+    type Item = Color;
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -51,7 +51,7 @@ impl IntoIterator for Canvas {
     }
 }
 
-impl PPM<Tuple4> for Canvas {
+impl PPM<Color> for Canvas {
     fn width(&self) -> usize {
         self.width
     }
@@ -60,7 +60,7 @@ impl PPM<Tuple4> for Canvas {
         self.height
     }
 
-    fn colors(&self) -> &[Tuple4] {
+    fn colors(&self) -> &[Color] {
         &self.pixels
     }
 }
@@ -79,13 +79,13 @@ mod tests {
 
         assert_eq!(width, 10);
         assert_eq!(height, 20);
-        assert_eq!(data, vec![Tuple4::new(0.0, 0.0, 0.0, 0.0); 200]);
+        assert_eq!(data, vec![Color::new(0.0, 0.0, 0.0); 200]);
     }
 
     #[test]
     fn test_putting_pixel() {
         let mut canvas = Canvas::new(10, 20);
-        let pixel = Tuple4::new(1.0, 2.0, 3.0, 0.0);
+        let pixel = Color::new(1.0, 2.0, 3.0);
 
         canvas.put_pixel(pixel, (2, 3));
 

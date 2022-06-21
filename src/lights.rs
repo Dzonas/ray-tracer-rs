@@ -1,13 +1,13 @@
-use crate::tuple::Tuple4;
+use crate::{color::Color, tuple::Tuple4};
 
 #[derive(Debug, Clone, Copy)]
 pub struct PointLight {
     position: Tuple4,
-    intensity: Tuple4,
+    intensity: Color,
 }
 
 impl PointLight {
-    pub fn new(position: Tuple4, intensity: Tuple4) -> Self {
+    pub fn new(position: Tuple4, intensity: Color) -> Self {
         PointLight {
             position,
             intensity,
@@ -18,7 +18,7 @@ impl PointLight {
         &self.position
     }
 
-    pub fn intensity(&self) -> &Tuple4 {
+    pub fn intensity(&self) -> &Color {
         &self.intensity
     }
 }
@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn test_point_light_has_position_and_intensity() {
-        let intensity = Tuple4::point(1.0, 1.0, 1.0);
+        let intensity = Color::new(1.0, 1.0, 1.0);
         let position = Tuple4::point(0.0, 0.0, 0.0);
 
         let point_light = PointLight::new(position, intensity);
