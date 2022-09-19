@@ -82,6 +82,7 @@ impl Default for Sphere {
     }
 }
 
+#[derive(Clone)]
 pub struct SphereIntersection<'a> {
     pub t: f64,
     pub sphere: &'a Sphere,
@@ -115,6 +116,15 @@ impl SphereIntersections<'_> {
             .iter()
             .filter(|x| x.t >= 0.0)
             .min_by(|a, b| a.t.partial_cmp(&b.t).expect("Tried to compare to NaN"))
+    }
+
+    pub fn append(&mut self, mut other: Self) {
+        self.intersections.append(&mut other.intersections);
+    }
+
+    pub fn sort_by_t_ascending(&mut self) {
+        self.intersections
+            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
     }
 }
 
