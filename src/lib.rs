@@ -7,3 +7,4 @@ pub mod ppm;
 pub mod ray;
 pub mod sphere;
 pub mod tuple;
+pub mod world;
