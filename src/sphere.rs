@@ -6,6 +6,7 @@ use crate::ray::Ray;
 use crate::tuple::Tuple4;
 
 #[allow(dead_code)]
+#[derive(PartialEq)]
 pub struct Sphere {
     origin: Tuple4,
     radius: f64,
