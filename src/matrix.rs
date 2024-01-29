@@ -91,11 +91,12 @@ impl Matrix3x3 {
     }
 
     fn det(&self) -> Elem {
-        self.data[..3]
-            .iter()
-            .enumerate()
-            .map(|(i, &n)| n * self.cofactor(0, i))
-            .sum()
+        let mut det = 0.0;
+        for (i, &n) in self.data[..Self::N].iter().enumerate() {
+            det += n * self.cofactor(0, i);
+        }
+
+        det
     }
 
     fn get_yx(&self, i: usize) -> (usize, usize) {
@@ -212,11 +213,12 @@ impl Matrix4x4 {
     }
 
     pub fn det(&self) -> Elem {
-        self.data[..Matrix4x4::N]
-            .iter()
-            .enumerate()
-            .map(|(i, &n)| n * self.cofactor(0, i))
-            .sum()
+        let mut det = 0.0;
+        for (i, &n) in self.data[..Self::N].iter().enumerate() {
+            det += n * self.cofactor(0, i);
+        }
+
+        det
     }
 
     pub fn is_invertible(&self) -> bool {
