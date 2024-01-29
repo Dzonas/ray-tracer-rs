@@ -67,16 +67,16 @@ impl Matrix3x3 {
     }
 
     fn submatrix(&self, row: usize, col: usize) -> Matrix2x2 {
-        let data = self
-            .data
-            .iter()
-            .enumerate()
-            .map(|(i, n)| (to_yx(Matrix3x3::N, i), n))
-            .filter(|&((y, x), _)| y != row && x != col)
-            .map(|(_, &n)| n)
-            .collect::<Vec<Elem>>()
-            .try_into()
-            .unwrap();
+        let mut data = [0.0; Matrix2x2::size()];
+        let mut j = 0;
+
+        for (i, n) in self.data.iter().enumerate() {
+            let (y, x) = self.get_yx(i);
+            if y != row && x != col {
+                data[j] = *n;
+                j += 1;
+            }
+        }
 
         Matrix2x2 { data }
     }
@@ -96,6 +96,10 @@ impl Matrix3x3 {
             .enumerate()
             .map(|(i, &n)| n * self.cofactor(0, i))
             .sum()
+    }
+
+    fn get_yx(&self, i: usize) -> (usize, usize) {
+        to_yx(Matrix3x3::N, i)
     }
 }
 
@@ -242,16 +246,16 @@ impl Matrix4x4 {
     }
 
     fn submatrix(&self, row: usize, col: usize) -> Matrix3x3 {
-        let data = self
-            .data
-            .iter()
-            .enumerate()
-            .map(|(i, n)| (self.get_yx(i), n))
-            .filter(|&((y, x), _)| y != row && x != col)
-            .map(|(_, &n)| n)
-            .collect::<Vec<Elem>>()
-            .try_into()
-            .unwrap();
+        let mut data = [0.0; Matrix3x3::size()];
+        let mut j = 0;
+
+        for (i, n) in self.data.iter().enumerate() {
+            let (y, x) = self.get_yx(i);
+            if y != row && x != col {
+                data[j] = *n;
+                j += 1;
+            }
+        }
 
         Matrix3x3 { data }
     }
