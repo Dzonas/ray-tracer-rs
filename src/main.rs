@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
                     .sphere
                     .get_material()
                     .lighting(light, point, eye, normal);
-                canvas.put_pixel(color, (x as usize, y as usize));
+                canvas.put_pixel(color, (x, y));
             }
         }
     }
