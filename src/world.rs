@@ -41,18 +41,17 @@ impl World {
     }
 
     fn shade_hit(&self, comps: &PreparedComputations) -> Option<Color> {
-        if let Some(point_light) = self.light {
-            Some(comps.object.get_material().lighting(
+        self.light.map(|point_light| {
+            comps.object.get_material().lighting(
                 point_light,
                 comps.point,
                 comps.eyev,
                 comps.normalv,
-            ))
-        } else {
-            None
-        }
+            )
+        })
     }
 
+    #[expect(dead_code)]
     fn color_at(&self, ray: &Ray) -> Color {
         if let Some(intersection) = self.intersect(ray).hit() {
             let comps = PreparedComputations::new(intersection, ray);
@@ -89,6 +88,7 @@ impl Default for World {
     }
 }
 
+#[expect(dead_code)]
 struct PreparedComputations<'a> {
     pub t: f64,
     pub object: &'a Sphere,
