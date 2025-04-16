@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use ray_tracer_rs::matrix::Matrix4x4;
 
 fn matrix_4x4_inverse(data: &[f64; 16]) {
